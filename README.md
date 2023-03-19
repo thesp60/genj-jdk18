@@ -1,4 +1,4 @@
-# [genj-code](http://genj.sourceforge.net/wiki/)
+(http://genj.sourceforge.net/wiki/)
 [Unofficial source clone] GenealogyJ is a viewer and editor for genealogic data, suitable for hobbyist, family historian and genealogy researcher. GenJ supports the Gedcom standard, is written in Java and offers many views like family tree, table, timeline, geography and more.
 
 ## Prerequisites
