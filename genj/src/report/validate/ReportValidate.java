@@ -36,6 +36,9 @@ public class ReportValidate extends Report {
   /** whether we consider an empty value to be valid */
   public boolean isEmptyValueValid = true;
 
+  /** whether we consider 'private' information valid or not */
+  public boolean isPrivateValueValid = true;
+
   /** whether we consider missing files as valid or not */
   public boolean isFileNotFoundValid = true;
 
@@ -179,9 +182,6 @@ public class ReportValidate extends Report {
       getOptionFromUser(translate("noissues"), Report.OPTION_OK);
       return null;
     }
-    
-    for (ViewContext context : issues)
-      println(context + " - " + context.getText());
 
     // wrap
     return issues;
@@ -245,9 +245,6 @@ public class ReportValidate extends Report {
 
     // non-valid properties
     result.add(new TestValid(this));
-    
-    // leftover records
-    result.add(new TestLeftover(this));
     
     // incestus
     result.add(new TestIncestus());

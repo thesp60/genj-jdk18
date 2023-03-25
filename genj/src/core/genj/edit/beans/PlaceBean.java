@@ -146,7 +146,7 @@ public class PlaceBean extends PropertyBean {
         thought about using getDisplayValue() here but the problem is that getAllJurisdictions()
         works on values (PropertyChoiceValue stuff) - se we have to use getValue() here
        */
-      value = place.getValue();
+      value = place.isSecret() ? "" : place.getValue();
       format = place.getFormat();
       formatAsString = place.getFormatAsString();
       jurisdictions = place.getJurisdictions();

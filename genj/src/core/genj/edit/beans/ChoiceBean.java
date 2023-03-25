@@ -120,7 +120,7 @@ public class ChoiceBean extends PropertyBean {
     choice.setValue(text, global.isSelected());
     
     // reset
-    choices.setValues(getChoicesToShow((PropertyChoiceValue)property));
+    choices.setValues(((PropertyChoiceValue)property).getChoices(true));
     choices.setText(text);
     global.setSelected(false);
     global.setVisible(false);
@@ -128,26 +128,26 @@ public class ChoiceBean extends PropertyBean {
     // Done
   }
   
-  private List<String> getChoicesToShow(PropertyChoiceValue property) {
+  // private List<String> getChoicesToShow(PropertyChoiceValue property) {
 
-	  List<String> vals = property.getChoices(true);
+	//   List<String> vals = property.getChoices(true);
 	  
-	  List<String> defaults = property.getDefaults();
-	  if (!defaults.isEmpty()) {
-		  gotdefault: for (String def : defaults) {
-			  for (String val : vals) {
-				  if (val.indexOf(def)>=0)
-					  continue gotdefault;
-			  }
-			  vals.add(def);
-		  }
-	  }
+	//   List<String> defaults = property.getDefaults();
+	//   if (!defaults.isEmpty()) {
+	// 	  gotdefault: for (String def : defaults) {
+	// 		  for (String val : vals) {
+	// 			  if (val.indexOf(def)>=0)
+	// 				  continue gotdefault;
+	// 		  }
+	// 		  vals.add(def);
+	// 	  }
+	//   }
 	  
-	  Collections.sort(vals, property.getGedcom().getCollator());
+	//   Collections.sort(vals, property.getGedcom().getCollator());
       
-      return vals;
+  //     return vals;
 	  
-  }
+  // }
 
   /**
    * Set context to edit
@@ -161,8 +161,8 @@ public class ChoiceBean extends PropertyBean {
     // e.g. witness@INDI:BIRT
     
     if (choice!=null) {
-      choices.setValues(getChoicesToShow((PropertyChoiceValue)property));
-      choices.setText(choice.getDisplayValue());
+      choices.setValues(choice.getChoices(true));
+      choices.setText(choice.isSecret() ? "" : choice.getDisplayValue());
       sameChoices = choice.getSameChoices();
     } else {
       choices.setValues(PropertyChoiceValue.getSameChoices(getRoot().getGedcom(), getPath().getLast(), true));

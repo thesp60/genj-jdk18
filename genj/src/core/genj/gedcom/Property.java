@@ -56,6 +56,9 @@ public abstract class Property implements Comparable<Property> {
   /** whether we're transient or not */
   protected boolean isTransient = false;
 
+  /** whether we're private or not */
+  private boolean isPrivate = false;
+  
   /** resources */
   protected final static Resources resources = Gedcom.resources;
 
@@ -1040,6 +1043,40 @@ public abstract class Property implements Comparable<Property> {
   }
   
   /**
+   * Accessor - private
+   */
+  public boolean isPrivate() {
+    return isPrivate;
+  }
+  
+  /**
+   * Accessor - secret is private and unknown password
+   */
+  public boolean isSecret() {
+    return isPrivate && getGedcom().getPassword()==Gedcom.PASSWORD_UNKNOWN;
+  }
+  
+  /**
+   * Accessor - private
+   */
+  public void setPrivate(boolean set, boolean recursively) {
+    
+    // change state
+    if (recursively) {
+      for (int c=0;c<getNoOfProperties();c++) {
+        Property child = getProperty(c);
+        child.setPrivate(set, recursively);
+      }
+    }
+    isPrivate = set;
+    
+    // bookkeeping
+    propagatePropertyChanged(this, getValue());
+    
+    // done
+  }
+
+  /**
    * Resolves end-user information about this property - by
    * default whatever is in the language resource files
    * @return name and info or null
@@ -1105,6 +1142,14 @@ public abstract class Property implements Comparable<Property> {
   
   /**
    * Generate a string representation based on given template.
+   * @see Property#format(String, PrivacyPolicy)
+   */
+  public String format(String format) {
+    return format(format, PrivacyPolicy.PUBLIC);
+  }
+  
+  /**
+   * Generate a string representation based on given template.
    * <pre>
    *   {$t} property tag (doesn't count as matched)
    *   {$T} property name(doesn't count as matched)
@@ -1116,14 +1161,16 @@ public abstract class Property implements Comparable<Property> {
    *   {$V} display value
    * </pre>
    * @param format as described
+   * @param policy applied privacy policy
    * @return formatted string if at least one marker matched, "" otherwise
    */
-  public String format(String format) {
+  public String format(String format, PrivacyPolicy policy) {
   
     // match format given
     Matcher matcher = FORMAT_PATTERN.matcher(format);
     // prepare running parameters
     StringBuffer result = new StringBuffer(format.length()+20);
+    int masked = 0;
     int matches = 0;
     int cursor = 0;
     // go through all matches in format
@@ -1148,6 +1195,11 @@ public abstract class Property implements Comparable<Property> {
         case 'T': { prop = null; value = Gedcom.getName(getTag()); break; }
         default:
           throw new IllegalArgumentException("unknown formatting marker "+marker);
+      }
+      // check property against policy if applicable
+      if (prop!=null && policy.isPrivate(prop)) {
+        // we didn't have a mask yet or the prefix is not empty? use mask
+        value = (masked++==0||prefix.trim().length()>0)  ? Options.getInstance().maskPrivate : "";
       }
       // append if value is good
       if (value.length()>0) {

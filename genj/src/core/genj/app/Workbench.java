@@ -48,6 +48,7 @@ import genj.util.swing.DialogHelper;
 import genj.util.swing.FileChooser;
 import genj.util.swing.ImageIcon;
 import genj.util.swing.MacAdapter;
+import genj.util.swing.TextFieldWidget;
 import genj.util.swing.DialogHelper.ComponentVisitor;
 import genj.view.SelectionSink;
 import genj.view.View;
@@ -423,6 +424,10 @@ public class Workbench extends JPanel implements SelectionSink {
     comboEncodings.setSelectedItem(context.getGedcom().getEncoding());
     options.add(comboEncodings);
     options.add(new JLabel(RES.getString("save.options.password")));
+    String pwd = context.getGedcom().getPassword();
+    TextFieldWidget textPassword = new TextFieldWidget(context.getGedcom().hasPassword() ? pwd : "", 10);
+    textPassword.setEditable(pwd!=Gedcom.PASSWORD_UNKNOWN);
+    options.add(textPassword);
     File file = chooseFile(RES.getString("cc.save.title"), RES.getString("cc.save.action"), options);
     if (file == null)
       return false;
@@ -439,6 +444,7 @@ public class Workbench extends JPanel implements SelectionSink {
       file = new File(file.getAbsolutePath() + ".ged");
     
     Gedcom gedcom = context.getGedcom();
+    gedcom.setPassword(textPassword.getText());
     gedcom.setEncoding((String)comboEncodings.getSelectedItem());
     
     // .. create new origin

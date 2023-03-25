@@ -23,6 +23,7 @@ import genj.app.Priority;
 import genj.app.Workbench;
 import genj.app.WorkbenchAdapter;
 import genj.common.SelectEntityWidget;
+import genj.crypto.Enigma;
 import genj.edit.actions.AbstractChange;
 import genj.edit.actions.CreateAlias;
 import genj.edit.actions.CreateAssociation;
@@ -40,6 +41,7 @@ import genj.edit.actions.RunExternal;
 import genj.edit.actions.SetPlaceHierarchy;
 import genj.edit.actions.SetSubmitter;
 import genj.edit.actions.SwapSpouses;
+import genj.edit.actions.TogglePrivate;
 import genj.edit.actions.Undo;
 import genj.edit.beans.PropertyBean;
 import genj.gedcom.Context;
@@ -74,6 +76,7 @@ import genj.view.SelectionSink;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -242,6 +245,10 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
    */
   private void createActions(List<? extends Property> properties, Action2.Group group) {
     
+    // Toggle "Private"
+    if (Enigma.isAvailable())
+      group.add(new TogglePrivate(properties.get(0).getGedcom(), properties));
+
     // Delete
     group.add(new DelProperty(properties));
     
@@ -287,6 +294,11 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
             || property.getGedcom().getGrammar().getMeta(new TagPath("INDI:ASSO")).allows("TYPE"))  )
       group.add(new CreateAssociation(property));
     
+      // Toggle "Private"
+    if (Enigma.isAvailable())
+    group.add(new TogglePrivate(property.getGedcom(), Collections.singletonList(property)));
+
+
     // Delete
     if (!property.isTransient()) 
       group.add(new DelProperty(property));
