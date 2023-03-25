@@ -22,6 +22,7 @@ package genj.option;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import javax.imageio.spi.ServiceRegistry;
 
@@ -93,7 +94,9 @@ public abstract class OptionProvider {
    * Lookup providers where considering
    */
   private static Iterator<OptionProvider> lookupProviders() {
-    return ServiceRegistry.lookupProviders(OptionProvider.class);
+    //return ServiceRegistry.lookupProviders(OptionProvider.class);
+    ServiceLoader<OptionProvider> loader = ServiceLoader.load(OptionProvider.class);
+    return loader.iterator();
   }
 
 } //OptionProvider
