@@ -79,8 +79,12 @@ public class ReportPlugin extends WorkbenchAdapter implements ActionProvider {
         Map<String, Action2.Group> categories = new HashMap<String, Action2.Group>();
         for (Report report : ReportLoader.getInstance().getReports()) {
           try {
-            String action = report.accepts(context.getGedcom());
-            if (action!=null) {
+            ActionRun run = null;
+            if (context.getEntity()!=null&&report.accepts(context.getEntity())!=null)
+              run = new ActionRun(report.accepts(context.getEntity()), context.getEntity(), report);
+            if (run==null&&report.accepts(context.getGedcom())!=null)
+              run = new ActionRun(report.accepts(context.getGedcom()), context.getGedcom(), report);
+            if (run!=null) {
               String cat = report.getCategory();
               Action2.Group catgroup = categories.get(cat);
               if (catgroup==null) {
@@ -88,7 +92,7 @@ public class ReportPlugin extends WorkbenchAdapter implements ActionProvider {
                 categories.put(cat, catgroup);
                 workbenchActions.add(catgroup);
               }
-              catgroup.add(new ActionRun(report.accepts(context.getGedcom()), context.getGedcom(), report));
+              catgroup.add(run);
             }
           } catch (Throwable t) {
             ReportView.LOG.log(Level.WARNING, "Report "+report.getClass().getName()+" failed in accept()", t);

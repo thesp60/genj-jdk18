@@ -39,6 +39,9 @@ public class Options extends OptionProvider {
   /** singleton */
   private final static Options instance = new Options();
   
+  /** option - whether to use spaces in separating places */
+  public boolean isUseSpacedPlaces = true;
+  
   /** option - whether id-gaps should be filled */
   public boolean isFillGapsInIDs = false;
   
@@ -78,6 +81,12 @@ public class Options extends OptionProvider {
   
   /** option - place hierarchy keys for city NOT EDITABLE ATM */
   protected Set<String> placeHierarchyCityKeys = new HashSet<String>(Arrays.asList(new String[]{ "city", "commune", "ville", "stadt"}));
+  
+  /** option - private information mask */
+  public String maskPrivate = "...";
+    
+  /** option - default encoding is the last one in gedcom's list available */
+  protected int defaultEncoding = Gedcom.ENCODINGS.length-1;
   
   /** option - how to display dates */
   public int dateFormat = 1;
@@ -160,6 +169,25 @@ public class Options extends OptionProvider {
    */
   public List<? extends Option> getOptions() {
     return PropertyOption.introspect(instance);
+  }
+
+  /**
+   * accessor - default encoding
+   */
+  public int getDefaultEncoding() {
+    return defaultEncoding;
+  }
+
+  /**
+   * accessor - default encoding
+   */
+  public void setDefaultEncoding(int setEncoding) {
+    if (setEncoding>=0&&setEncoding<Gedcom.ENCODINGS.length)
+      defaultEncoding = setEncoding;
+  }
+  
+  public static String[] getDefaultEncodings() {
+    return Gedcom.ENCODINGS;
   }
 
 } //Options

@@ -19,12 +19,11 @@
  */
 package genj.gedcom;
 
+import genj.crypto.Enigma;
 import genj.util.ReferenceSet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Gedcom Property : simple value with choices
@@ -49,6 +48,9 @@ public class PropertyChoiceValue extends PropertySimpleValue {
     ReferenceSet<String, Property> refSet = gedcom.getReferenceSet(getTag());
     // intern newValue - we expect the remembered values to be shared so we share the string instances for an upfront cost
     newValue = newValue.intern();
+    // check for secret values
+    if (Enigma.isEncrypted(oldValue)) oldValue = "";
+    if (Enigma.isEncrypted(newValue)) newValue = ""; 
     // forget old
     if (oldValue.length()>0) refSet.remove(oldValue, this);
     // remember new
@@ -60,31 +62,25 @@ public class PropertyChoiceValue extends PropertySimpleValue {
   /**
    * Returns all choices in same gedcom file as this
    */
-  public List<String> getChoices(boolean sort) {
+  public String[] getChoices(boolean sort) {
     // got access to a reference set?
     Gedcom gedcom = getGedcom();
     if (gedcom==null)
-      return Collections.EMPTY_LIST;
+      return new String[0];
     return getChoices(gedcom, getTag(), sort);
-  }
-  
-  public List<String> getDefaults() {
-	  List<String> result = new ArrayList<String>(10);
-      String defaults = Gedcom.resources.getString(getTag()+".vals",false);
-      if (defaults!=null) {
-        StringTokenizer tokens = new StringTokenizer(defaults,",");
-        while (tokens.hasMoreElements()) {
-        	result.add(tokens.nextToken().trim()); 
-        }
-      }
-      return result;
   }
   
   /**
    * Returns all choices for given property tag
    */
-  public static List<String> getChoices( Gedcom gedcom, String tag, boolean sort) {
-	return new ArrayList<String>(gedcom.getReferenceSet(tag).getKeys(sort ? gedcom.getCollator() : null));
+  public static String[] getChoices(final Gedcom gedcom, final String tag, boolean sort) {
+    
+    // lookup choices
+    List<String> choices = gedcom.getReferenceSet(tag).getKeys(sort ? gedcom.getCollator() : null);
+
+    // done
+    return (String[])choices.toArray(new String[choices.size()]);
+    
   }
   
   /**

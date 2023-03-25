@@ -302,7 +302,7 @@ public class MediaBean extends PropertyBean implements ContextProvider {
       super.setEnabled(set);
       // update tip
       if (set)
-        setTip(RES.getString("file.add"));
+        setTip(RES.getString("file.add", getProperty().getPropertyName()));
       else
         setTip("");
     }
@@ -366,10 +366,8 @@ public class MediaBean extends PropertyBean implements ContextProvider {
         thumbs.addSource(source);
       
       // keep track of all sources
-      Set<Property> props = propsNeedingOBJEs.get(source);
-      @SuppressWarnings("deprecation")
-      Object[] selection = to.getSelectedValues();
-      for (Object prop : selection)
+      Set<Property> props = propsNeedingOBJEs.get(source); 
+      for (Object prop : to.getSelectedValues())
         props.add((Property)prop);
       
       // mark
@@ -416,7 +414,7 @@ public class MediaBean extends PropertyBean implements ContextProvider {
         set = false;
       super.setEnabled(set);
       if (set)
-        setTip(RES.getString("file.del"));
+        setTip(RES.getString("file.del", getProperty().getPropertyName()));
       else
         setTip("");
     }
@@ -454,7 +452,7 @@ public class MediaBean extends PropertyBean implements ContextProvider {
         from.setSelectionInterval(0, choices.size()-1);
 
       JPanel options = new JPanel(new NestedBlockLayout("<col><l1 gx=\"1\"/><targets gx=\"1\" gy=\"1\"/></col>"));
-      options.add(new JLabel(RES.getString("file.del")));
+      options.add(new JLabel(RES.getString("file.del", "...")));
       options.add(new JScrollPane(from));
 
       ok = Action2.ok();

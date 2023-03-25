@@ -19,6 +19,7 @@
  */
 package genj.gedcom;
 
+import genj.crypto.Enigma;
 import genj.util.ReferenceSet;
 import genj.util.WordBuffer;
 
@@ -215,6 +216,9 @@ public class PropertyName extends Property {
    */
   public String getDisplayValue() {
     
+    if (isSecret())
+      return "";
+    
     // n/a
     if (nameAsString!=null)
       return nameAsString;
@@ -361,6 +365,13 @@ public class PropertyName extends Property {
    */
   public void setValue(String newValue) {
     
+    // don't parse anything secret
+    if (Enigma.isEncrypted(newValue)) {
+      setName("","","");
+      nameAsString=newValue;
+      return;
+    }
+
     // Only name specified ?
     if (newValue.indexOf('/')<0) {
       setName(newValue, "", "");

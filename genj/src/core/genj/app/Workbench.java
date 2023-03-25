@@ -48,6 +48,7 @@ import genj.util.swing.DialogHelper;
 import genj.util.swing.FileChooser;
 import genj.util.swing.ImageIcon;
 import genj.util.swing.MacAdapter;
+import genj.util.swing.TextFieldWidget;
 import genj.util.swing.DialogHelper.ComponentVisitor;
 import genj.view.SelectionSink;
 import genj.view.View;
@@ -382,20 +383,14 @@ public class Workbench extends JPanel implements SelectionSink {
     try {
       context = Context.fromString(gedcom, REGISTRY.get(gedcom.getName()+".context", gedcom.getName()));
     } catch (GedcomException ge) {
-      context = new Context(gedcom);
+    } finally {
+      // fixup context if necessary - start with adam if available
+      Entity adam = gedcom.getFirstEntity(Gedcom.INDI);
+      if (context.getEntities().isEmpty())
+        context = new Context(gedcom, adam!=null ? Collections.singletonList(adam) : null, null);
     }
     
-    // fixup context if necessary - start with adam if necessary and available
-    if (context.getEntity()==null) {
-      Entity adam = null;
-      if ("royal92.ged".equals(gedcom.getName()))
-    	  adam = gedcom.getEntity("I65"); // Hardcoded Diana Spencer, yay
-      if (adam==null)
-      	adam = gedcom.getFirstEntity(Gedcom.INDI);
-      context = new Context(gedcom, adam!=null ? Collections.singletonList(adam) : null, null);
-    } 
-    
-    // tell everyone
+    // tell everone
     for (WorkbenchListener listener: listeners)
       listener.gedcomOpened(this, gedcom);
   
@@ -423,6 +418,10 @@ public class Workbench extends JPanel implements SelectionSink {
     comboEncodings.setSelectedItem(context.getGedcom().getEncoding());
     options.add(comboEncodings);
     options.add(new JLabel(RES.getString("save.options.password")));
+    String pwd = context.getGedcom().getPassword();
+    TextFieldWidget textPassword = new TextFieldWidget(context.getGedcom().hasPassword() ? pwd : "", 10);
+    textPassword.setEditable(pwd!=Gedcom.PASSWORD_UNKNOWN);
+    options.add(textPassword);
     File file = chooseFile(RES.getString("cc.save.title"), RES.getString("cc.save.action"), options);
     if (file == null)
       return false;
@@ -439,6 +438,7 @@ public class Workbench extends JPanel implements SelectionSink {
       file = new File(file.getAbsolutePath() + ".ged");
     
     Gedcom gedcom = context.getGedcom();
+    gedcom.setPassword(textPassword.getText());
     gedcom.setEncoding((String)comboEncodings.getSelectedItem());
     
     // .. create new origin
@@ -627,7 +627,7 @@ public class Workbench extends JPanel implements SelectionSink {
       	// we're intentionally not going through toURI.toURL here since
       	// that would add space-to-%20 conversion which kills our relative
       	// file check operations down the line
-        restore = new File("gedcom/royal92.ged").toURL().toString();
+        restore = new File("gedcom/example.ged").toURL().toString();
       // known key needs value
       if (restore.length()>0)
         openGedcom(new URL(restore));

@@ -90,6 +90,8 @@ public class BlueprintRenderer {
   public static final String HINT_VALUE_TRUE = "yes";
   public static final String HINT_VALUE_FALSE = "no";
   
+  private final static String STARS = "*****";
+  
   private final static int IMAGE_GAP = 4;
   
   private final static Stroke DEBUG_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[]{ 1,2 }, 0.0f);
@@ -927,6 +929,8 @@ public class BlueprintRenderer {
     private String getText(Property prop) {
       if (prop instanceof Entity)
         return getText((Entity)prop);
+      if (prop.isPrivate())
+        return STARS;
       if (prop instanceof PropertyPlace)
         return getText((PropertyPlace)prop);
       if (prop instanceof PropertySex)

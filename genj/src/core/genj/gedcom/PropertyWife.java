@@ -26,7 +26,8 @@ package genj.gedcom;
  */
 public class PropertyWife extends PropertyXRef {
 
-  final static TagPath PATH_INDIFAMS = new TagPath("INDI:FAMS");
+  private final static TagPath
+    PATH_INDIFAMS = new TagPath("INDI:FAMS");
   
   public final static String TAG = "WIFE";
 
@@ -64,22 +65,6 @@ public class PropertyWife extends PropertyXRef {
    */
   public Indi getWife() {
     return (Indi)getTargetEntity();
-  }
-
-  /**
-   * A text representation for the wife reflected as a parent (either father or mother) derived of the persons gender
-   */
-  public String getPropertyNameAsParent() {
-    Indi indi = getWife();
-    if (indi==null)
-      return PropertyWife.LABEL_MOTHER;
-    switch (indi.getSex()) {
-      case PropertySex.MALE:
-        return PropertyHusband.LABEL_FATHER;
-      default:
-      case PropertySex.FEMALE:
-        return PropertyWife.LABEL_MOTHER;
-    }
   }
 
   /**

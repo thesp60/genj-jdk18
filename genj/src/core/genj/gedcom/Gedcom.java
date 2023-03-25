@@ -181,7 +181,7 @@ public class Gedcom {
   private Map<String,Integer> propertyTag2valueCount = new HashMap<String,Integer>();
 
   /** encoding */
-  private String encoding = UTF8;
+  private String encoding = ENCODINGS[Math.min(ENCODINGS.length-1, Options.getInstance().defaultEncoding)];
     
   /** language */
   private String language = null;
@@ -194,6 +194,9 @@ public class Gedcom {
   
   /** global place format */
   private String placeFormat = "";
+
+  /** password for private information */
+  private String password = null;
 
   /**
    * Gedcom's Constructor
@@ -1174,6 +1177,12 @@ public class Gedcom {
       // .. instantiate if necessary
       result = new ReferenceSet<String, Property>();
       tags2refsets.put(tag, result);
+      // .. and pre-fill
+      String defaults = Gedcom.resources.getString(tag+".vals",false);
+      if (defaults!=null) {
+        StringTokenizer tokens = new StringTokenizer(defaults,",");
+        while (tokens.hasMoreElements()) result.add(tokens.nextToken().trim(), null);
+      }
     }
     // done
     return result;
@@ -1281,6 +1290,27 @@ public class Gedcom {
    */
   public void setLanguage(String set) {
     language = set;
+  }
+  
+  /**
+   * Accessor - password
+   */
+  public void setPassword(String set) {
+    password = set;
+  }
+  
+  /**
+   * Accessor - password
+   */
+  public String getPassword() {
+    return password;
+  }
+  
+  /**
+   * Accessor - password
+   */
+  public boolean hasPassword() {
+    return password!=null;
   }
   
   /**

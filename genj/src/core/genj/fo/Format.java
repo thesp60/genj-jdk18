@@ -62,7 +62,7 @@ public abstract class Format {
   private boolean isExternalizedFiles;
   
   /** caching for xsl templates */
-  private Map<File, TemplatesCache> xslCache = new HashMap<File, TemplatesCache>();
+  private Map xslCache = new HashMap();
 
   /** 
    * Constructor 
@@ -263,10 +263,10 @@ public abstract class Format {
       return formats;
     
     // look 'em up
-    List<Format> list = new ArrayList<Format>(10);
+    List list = new ArrayList(10);
     list.add(DEFAULT);
     
-    Iterator<Format> it = ServiceRegistry.lookupProviders(Format.class);
+    Iterator it = ServiceRegistry.lookupProviders(Format.class);
     while (it.hasNext()) {
       try {
         Format f = (Format)it.next();

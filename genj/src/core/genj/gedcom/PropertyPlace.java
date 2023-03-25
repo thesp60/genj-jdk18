@@ -20,7 +20,6 @@
 package genj.gedcom;
 
 import genj.util.DirectAccessTokenizer;
-import genj.util.EnvironmentChecker;
 import genj.util.ReferenceSet;
 import genj.util.swing.ImageIcon;
 
@@ -34,7 +33,7 @@ import java.util.StringTokenizer;
  */
 public class PropertyPlace extends PropertyChoiceValue {
 
-  private final static boolean USE_SPACES = "true".equals(EnvironmentChecker.getProperty("genj.gedcom.plac.usespaces", "false", "spaces in jurisdiction separation?")); 
+  private final static boolean USE_SPACES = Options.getInstance().isUseSpacedPlaces;
 
   public final static ImageIcon
     IMAGE = Grammar.V55.getMeta(new TagPath("INDI:BIRT:PLAC")).getImage();

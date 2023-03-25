@@ -23,6 +23,7 @@ import genj.app.Priority;
 import genj.app.Workbench;
 import genj.app.WorkbenchAdapter;
 import genj.common.SelectEntityWidget;
+import genj.crypto.Enigma;
 import genj.edit.actions.AbstractChange;
 import genj.edit.actions.CreateAlias;
 import genj.edit.actions.CreateAssociation;
@@ -40,6 +41,7 @@ import genj.edit.actions.RunExternal;
 import genj.edit.actions.SetPlaceHierarchy;
 import genj.edit.actions.SetSubmitter;
 import genj.edit.actions.SwapSpouses;
+import genj.edit.actions.TogglePrivate;
 import genj.edit.actions.Undo;
 import genj.edit.beans.PropertyBean;
 import genj.gedcom.Context;
@@ -74,7 +76,7 @@ import genj.view.SelectionSink;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,10 +115,9 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
     // check if there's any individuals
     if (!gedcom.getEntities(Gedcom.INDI).isEmpty()) 
       return;
-    
-    // Remove wizard prompt and go straight for editing of first person as we can assume the user just created an empty file 
-    //  if (0!=DialogHelper.openDialog(RESOURCES.getString("wizard.first", gedcom.getName()), DialogHelper.QUESTION_MESSAGE, RESOURCES.getString("wizard.empty", gedcom.getName()), Action2.yesNo(), workbench)) 
-    //    return;
+
+    if (0!=DialogHelper.openDialog(RESOURCES.getString("wizard.first", gedcom.getName()), DialogHelper.QUESTION_MESSAGE, RESOURCES.getString("wizard.empty", gedcom.getName()), Action2.yesNo(), workbench)) 
+      return;
     
     try {
       wizardFirst(workbench, gedcom);
@@ -242,6 +243,10 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
    */
   private void createActions(List<? extends Property> properties, Action2.Group group) {
     
+    // Toggle "Private"
+    if (Enigma.isAvailable())
+      group.add(new TogglePrivate(properties.get(0).getGedcom(), properties));
+    
     // Delete
     group.add(new DelProperty(properties));
     
@@ -286,6 +291,10 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
         && ( (property.getEntity() instanceof Indi)
             || property.getGedcom().getGrammar().getMeta(new TagPath("INDI:ASSO")).allows("TYPE"))  )
       group.add(new CreateAssociation(property));
+    
+    // Toggle "Private"
+    if (Enigma.isAvailable())
+      group.add(new TogglePrivate(property.getGedcom(), Collections.singletonList(property)));
     
     // Delete
     if (!property.isTransient()) 
@@ -343,22 +352,6 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
               result.add(group);
             cursor = cursor.getParent();
           }
-        }
-        
-        // sub-menu for entities
-        if (context.getEntities().size()>1) {
-        	
-            List<Fam> fams = new ArrayList<Fam>();
-            for (Entity e : context.getEntities()) {
-                if (e instanceof Fam && ((Fam)e).getNoOfSpouses()!=0)
-                	fams.add((Fam)e);
-            }
-            if (!fams.isEmpty()) {
-                Action2.Group group = new ActionProvider.EntitiesActionGroup(context.getEntities());
-                group.add(new SwapSpouses(fams));
-                result.add(group);
-            }
-            
         }
      
         // sub-menu for entity
@@ -432,9 +425,7 @@ public class EditPlugin extends WorkbenchAdapter implements ActionProvider {
 
     // add delete
     group.add(new ActionProvider.SeparatorAction());
-    
-    if (entity!=entity.getGedcom().getSubmitter())
-      group.add(new DelEntity(entity));
+    group.add(new DelEntity(entity));
     
     // done
   }
